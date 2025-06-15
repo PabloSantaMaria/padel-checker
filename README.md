@@ -12,6 +12,7 @@ Este proyecto monitorea automáticamente la disponibilidad de canchas de pádel 
 - ✅ Filtrado por días de la semana (lunes a viernes por defecto)
 - ✅ Filtrado por horarios (desde las 18:30 por defecto)
 - ✅ Notificaciones por email con formato amigable
+- ✅ Links directos de reserva para cada turno encontrado
 - ✅ Soporte para múltiples destinatarios
 - ✅ Ejecución local y en GitHub Actions
 
@@ -110,6 +111,26 @@ export const config = {
 ### Ajustar formato de notificaciones
 
 El formato de las notificaciones se puede modificar en `src/index.ts` en la función que genera los mensajes.
+
+## Formato de notificaciones
+
+Cuando encuentra turnos disponibles, recibirás un email con el siguiente formato:
+
+```text
+🎾 ¡Hay turnos disponibles!
+
+📅 Lunes, 16 de Junio, 18:30 - 🏟️ Cancha 3
+🔗 Reservar: https://atcsports.io/venues/head-club-tandil-tandil?dia=2025-06-16
+
+📅 Jueves, 19 de Junio, 19:00 - 🏟️ Cancha 1
+🔗 Reservar: https://atcsports.io/venues/head-club-tandil-tandil?dia=2025-06-19
+```
+
+Cada turno incluye:
+
+- 📅 **Fecha y hora**: En formato argentino (24 horas)
+- 🏟️ **Cancha**: Nombre de la cancha disponible
+- 🔗 **Link directo**: Para ir directamente a reservar en la web
 
 ## Estructura del proyecto
 

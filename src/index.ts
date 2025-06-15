@@ -32,8 +32,12 @@ async function checkAvailability() {
       // Capitalizar palabras (ya no necesitamos convertir am/pm porque usamos formato 24h)
       turno = capitalizeWords(turno);
 
-      // Agregar mensaje formateado
-      messages.push(`📅 ${turno} - 🏟️  ${slot.court}`);
+      // Formatear fecha para la URL (YYYY-MM-DD)
+      const urlDate = date.toISOString().split('T')[0];
+      const reservationUrl = `https://atcsports.io/venues/head-club-tandil-tandil?dia=${urlDate}`;
+
+      // Agregar mensaje formateado con link de reserva
+      messages.push(`📅 ${turno} - 🏟️  ${slot.court}\n🔗 Reservar: ${reservationUrl}`);
     });
   }
 
