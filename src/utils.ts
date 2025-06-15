@@ -7,6 +7,8 @@ export const dateFormatter = new Intl.DateTimeFormat('es-AR', {
   month: 'long',
   hour: '2-digit',
   minute: '2-digit',
+  hour12: false, // Formato 24 horas
+  timeZone: 'America/Argentina/Buenos_Aires', // Zona horaria específica
 });
 
 // Función para capitalizar solo ciertas palabras (días y meses)
@@ -22,9 +24,15 @@ export function capitalizeWords(str: string): string {
 
 export function isValidSlot(dateStr: string): boolean {
   const date = new Date(dateStr);
-  const day = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][date.getDay()];
-  const hour = date.getHours();
-  const minute = date.getMinutes();
+  
+  // Convertir a zona horaria argentina para validación correcta
+  const argentinaDate = new Date(date.toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
+  
+  const day = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][argentinaDate.getDay()];
+  const hour = argentinaDate.getHours();
+  const minute = argentinaDate.getMinutes();
+
+  console.log(`Evaluando slot: ${dateStr} -> Día: ${day}, Hora: ${hour}:${minute.toString().padStart(2, '0')}`);
 
   return (
     config.daysToCheck.includes(day) &&

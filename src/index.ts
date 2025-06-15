@@ -29,10 +29,8 @@ async function checkAvailability() {
       const date = new Date(slot.time);
       let turno = dateFormatter.format(date);
 
-      // Capitalizar palabras y convertir am/pm a mayúsculas
-      turno = capitalizeWords(turno)
-        .replace(/a\.\s*m\./gi, 'A. M.')
-        .replace(/p\.\s*m\./gi, 'P. M.');
+      // Capitalizar palabras (ya no necesitamos convertir am/pm porque usamos formato 24h)
+      turno = capitalizeWords(turno);
 
       // Agregar mensaje formateado
       messages.push(`📅 ${turno} - 🏟️  ${slot.court}`);
