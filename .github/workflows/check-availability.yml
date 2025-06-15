@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '*/30 * * * *' # cada 30 minutos (consistente con .env local)
   workflow_dispatch: # permite ejecutar manualmente desde la UI
+  push:
+    branches: [ main ] # También ejecutar en push para test
 
 jobs:
   check-availability:
