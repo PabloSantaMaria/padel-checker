@@ -14,11 +14,11 @@ jobs:
       EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
-      # Configuración consistente con .env local
+      # Configuración consistente con .env local (temporal para test)
       CHECK_INTERVAL_MINUTES: '30'
       DAYS_TO_CHECK: 'MO,TU,WE,TH,FR'
-      EARLIEST_HOUR: '18'
-      EARLIEST_MINUTE: '30'
+      EARLIEST_HOUR: '16'
+      EARLIEST_MINUTE: '00'
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
