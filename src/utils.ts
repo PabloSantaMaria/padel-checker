@@ -24,10 +24,14 @@ export function capitalizeWords(str: string): string {
 
 export function isValidSlot(dateStr: string): boolean {
   const date = new Date(dateStr);
-  
+
   // Convertir a zona horaria argentina para validación correcta
-  const argentinaDate = new Date(date.toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
-  
+  const argentinaDate = new Date(
+    date.toLocaleString('en-US', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+    }),
+  );
+
   const day = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][argentinaDate.getDay()];
   const hour = argentinaDate.getHours();
   const minute = argentinaDate.getMinutes();
@@ -39,4 +43,42 @@ export function isValidSlot(dateStr: string): boolean {
     (hour > config.earliestHour ||
       (hour === config.earliestHour && minute >= config.earliestMinute))
   );
+}
+
+export function isWithinRunningHours(): boolean {
+  const now = new Date();
+  const currentHour = now.getHours();
+
+  // Manejar el caso donde el horario cruza medianoche (ej: 22:00 - 06:00)
+  if (config.runEndHour <= config.runStartHour) {
+    // El horario cruza medianoche
+    const isInRange =
+      currentHour >= config.runStartHour || currentHour < config.runEndHour;
+    if (!isInRange) {
+      console.log(
+        `Fuera del horario de ejecución (${config.runStartHour}:00 - ${
+          config.runEndHour
+        }:00). Hora actual: ${currentHour}:${now
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')}`,
+      );
+    }
+    return isInRange;
+  } else {
+    // Horario normal (no cruza medianoche)
+    const isInRange =
+      currentHour >= config.runStartHour && currentHour < config.runEndHour;
+    if (!isInRange) {
+      console.log(
+        `Fuera del horario de ejecución (${config.runStartHour}:00 - ${
+          config.runEndHour
+        }:00). Hora actual: ${currentHour}:${now
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')}`,
+      );
+    }
+    return isInRange;
+  }
 }

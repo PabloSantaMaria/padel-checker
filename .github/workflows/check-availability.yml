@@ -2,7 +2,7 @@ name: Check Court Availability
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # cada 30 minutos (consistente con .env local)
+    - cron: '*/30 * * * *' # cada 30 minutos
   workflow_dispatch: # permite ejecutar manualmente desde la UI
   push:
     branches: [ main ] # También ejecutar en push para test
@@ -17,11 +17,17 @@ jobs:
       EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
-      # Configuración consistente con .env local
+      # Configuración de disponibilidad de canchas
       CHECK_INTERVAL_MINUTES: '30'
       DAYS_TO_CHECK: 'MO,TU,WE,TH,FR'
       EARLIEST_HOUR: '18'
       EARLIEST_MINUTE: '00'
+      # Configuración de horarios de ejecución
+      # IMPORTANTE: GitHub Actions corre en UTC, ajustar según tu zona horaria
+      # Argentina (UTC-3): 7 AM = 10 AM UTC, 11 PM = 2 AM UTC (día siguiente)
+      # Para otras zonas horarias, calcular el offset correspondiente
+      RUN_START_HOUR: '10'  # 7 AM Argentina (UTC-3)
+      RUN_END_HOUR: '2'     # 11 PM Argentina (UTC-3)
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

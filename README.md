@@ -29,6 +29,10 @@ DAYS_TO_CHECK=MO,TU,WE,TH,FR
 EARLIEST_HOUR=18
 EARLIEST_MINUTE=30
 
+# Configuración de horarios de ejecución
+RUN_START_HOUR=7   # Hora de inicio (7 AM)
+RUN_END_HOUR=23    # Hora de fin (11 PM)
+
 # Configuración de email
 EMAIL_SENDER=tu-email@gmail.com
 EMAIL_PASSWORD=tu-contraseña-de-aplicacion
@@ -45,6 +49,13 @@ EMAIL_RECIPIENTS=destinatario1@gmail.com,destinatario2@gmail.com
   - Ejemplo: `MO,TU,WE,TH,FR` para días laborables
 - **`EARLIEST_HOUR`**: Hora mínima para buscar turnos (formato 24h, por defecto: 18)
 - **`EARLIEST_MINUTE`**: Minuto mínimo para buscar turnos (por defecto: 30)
+
+#### Control de horarios de ejecución
+
+- **`RUN_START_HOUR`**: Hora de inicio para ejecutar el checker (formato 24h, por defecto: 7)
+- **`RUN_END_HOUR`**: Hora de fin para ejecutar el checker (formato 24h, por defecto: 23)
+
+**Nota importante**: El script solo se ejecutará entre `RUN_START_HOUR` y `RUN_END_HOUR`. Esto previene ejecuciones innecesarias durante la noche cuando es poco probable encontrar nuevos turnos.
 
 #### Email
 
@@ -87,6 +98,8 @@ npm start
    - `EMAIL_RECIPIENTS`: Lista de destinatarios separados por comas
 
 3. El workflow se ejecutará automáticamente cada 30 minutos
+
+**Configuración de horarios en GitHub Actions**: El workflow está configurado para respetar los horarios de ejecución. Por defecto, en Argentina (UTC-3), se ejecuta de 7 AM a 11 PM hora local. GitHub Actions corre en UTC, por lo que los horarios están ajustados automáticamente.
 
 Para ejecutar manualmente desde GitHub:
 

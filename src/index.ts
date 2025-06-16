@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { config } from './config';
 import { sendEmail } from './mailer';
-import { capitalizeWords, dateFormatter, isValidSlot } from './utils';
+import {
+  capitalizeWords,
+  dateFormatter,
+  isValidSlot,
+  isWithinRunningHours,
+} from './utils';
 
 async function checkAvailability() {
   const today = new Date();
@@ -37,7 +42,9 @@ async function checkAvailability() {
       const reservationUrl = `https://atcsports.io/venues/head-club-tandil-tandil?dia=${urlDate}`;
 
       // Agregar mensaje formateado con link de reserva
-      messages.push(`📅 ${turno} - 🏟️  ${slot.court}\n🔗 Reservar: ${reservationUrl}`);
+      messages.push(
+        `📅 ${turno} - 🏟️  ${slot.court}\n🔗 Reservar: ${reservationUrl}`,
+      );
     });
   }
 
@@ -47,6 +54,11 @@ async function checkAvailability() {
 (async () => {
   const run = async () => {
     try {
+      // Verificar si estamos dentro del horario permitido
+      if (!isWithinRunningHours()) {
+        return; // Salir sin hacer nada si está fuera del horario
+      }
+
       const available = await checkAvailability();
       if (available.length) {
         // Mostrar turnos disponibles en consola
@@ -65,13 +77,17 @@ async function checkAvailability() {
   };
 
   await run();
-  
+
   // Solo usar setInterval si NO estamos en GitHub Actions
   // GitHub Actions maneja la repetición con cron jobs
   if (!process.env.GITHUB_ACTIONS) {
-    console.log(`Configurando ejecución automática cada ${config.checkIntervalMinutes} minutos...`);
+    console.log(
+      `Configurando ejecución automática cada ${config.checkIntervalMinutes} minutos...`,
+    );
     setInterval(run, config.checkIntervalMinutes * 60 * 1000);
   } else {
-    console.log('Ejecutando en GitHub Actions - el cron job maneja la repetición');
+    console.log(
+      'Ejecutando en GitHub Actions - el cron job maneja la repetición',
+    );
   }
 })();
