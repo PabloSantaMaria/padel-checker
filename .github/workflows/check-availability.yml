@@ -7,6 +7,9 @@ on:
   push:
     branches: [ main ] # También ejecutar en push para test
 
+permissions:
+  contents: read
+
 jobs:
   check-availability:
     runs-on: ubuntu-latest
