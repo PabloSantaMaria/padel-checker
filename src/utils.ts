@@ -82,3 +82,20 @@ export function isWithinRunningHours(): boolean {
     return isInRange;
   }
 }
+
+// Función para obtener la fecha en formato YYYY-MM-DD en zona horaria argentina
+export function getArgentinaDateString(date: Date): string {
+  // Crear una nueva fecha ajustada a la zona horaria argentina
+  const argentinaDate = new Date(
+    date.toLocaleString('en-US', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+    }),
+  );
+  
+  // Extraer año, mes y día
+  const year = argentinaDate.getFullYear();
+  const month = (argentinaDate.getMonth() + 1).toString().padStart(2, '0');
+  const day = argentinaDate.getDate().toString().padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}

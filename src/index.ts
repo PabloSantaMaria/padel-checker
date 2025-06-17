@@ -6,6 +6,7 @@ import {
   dateFormatter,
   isValidSlot,
   isWithinRunningHours,
+  getArgentinaDateString,
 } from './utils';
 
 async function checkAvailability() {
@@ -37,8 +38,8 @@ async function checkAvailability() {
       // Capitalizar palabras (ya no necesitamos convertir am/pm porque usamos formato 24h)
       turno = capitalizeWords(turno);
 
-      // Formatear fecha para la URL (YYYY-MM-DD)
-      const urlDate = date.toISOString().split('T')[0];
+      // Formatear fecha para la URL usando la zona horaria argentina
+      const urlDate = getArgentinaDateString(date);
       const reservationUrl = `https://atcsports.io/venues/head-club-tandil-tandil?dia=${urlDate}`;
 
       // Agregar mensaje formateado con link de reserva
