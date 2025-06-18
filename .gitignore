@@ -3,6 +3,9 @@ node_modules/
 dist/
 .env
 
+# Historial de notificaciones (se maneja con GitHub cache en Actions)
+notified-slots.json
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

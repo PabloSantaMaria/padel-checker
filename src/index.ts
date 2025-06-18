@@ -8,10 +8,16 @@ import {
   isWithinRunningHours,
   getArgentinaDateString,
 } from './utils';
+import { SlotStorage } from './storage';
 
 async function checkAvailability() {
   const today = new Date();
   const messages: string[] = [];
+  const storage = new SlotStorage();
+
+  console.log('=== Iniciando verificación de disponibilidad ===');
+  const stats = storage.getStats();
+  console.log(`Historial: ${stats.total} turnos notificados, el más antiguo hace ${stats.oldestHours || 0} horas`);
 
   for (let i = 0; i < 6; i++) {
     const checkDate = new Date(today);
@@ -29,8 +35,15 @@ async function checkAvailability() {
     );
 
     const filtered = slots.filter((slot: any) => isValidSlot(slot.time));
+    
+    // Filtrar turnos que ya fueron notificados
+    const newSlots = filtered.filter((slot: any) => 
+      !storage.hasBeenNotified(slot.court, slot.time)
+    );
 
-    filtered.forEach((slot: any) => {
+    console.log(`Fecha ${dateStr}: ${slots.length} turnos totales, ${filtered.length} en horarios válidos, ${newSlots.length} nuevos para notificar`);
+
+    newSlots.forEach((slot: any) => {
       // Formatear fecha y hora usando el formateador reutilizable
       const date = new Date(slot.time);
       let turno = dateFormatter.format(date);
@@ -46,10 +59,13 @@ async function checkAvailability() {
       messages.push(
         `📅 ${turno} - 🏟️  ${slot.court}\n🔗 Reservar: ${reservationUrl}`,
       );
+      
+      // Marcar el turno como notificado
+      storage.markAsNotified(slot.court, slot.time);
     });
   }
 
-  return messages;
+  return { messages, storage };
 }
 
 (async () => {
@@ -60,7 +76,9 @@ async function checkAvailability() {
         return; // Salir sin hacer nada si está fuera del horario
       }
 
-      const available = await checkAvailability();
+      const result = await checkAvailability();
+      const { messages: available, storage } = result;
+      
       if (available.length) {
         // Mostrar turnos disponibles en consola
         console.log('Turnos disponibles encontrados:', available);
@@ -69,8 +87,9 @@ async function checkAvailability() {
           '\n',
         )}`;
         await sendEmail('🎾 Turnos disponibles en Head Tandil!', message);
+        console.log(`📧 Email enviado con ${available.length} turnos nuevos`);
       } else {
-        console.log('Sin turnos disponibles en los horarios configurados.');
+        console.log('Sin turnos nuevos para notificar (ya fueron enviados anteriormente o no hay disponibles).');
       }
     } catch (err) {
       console.error('Error al consultar disponibilidad:', err);
