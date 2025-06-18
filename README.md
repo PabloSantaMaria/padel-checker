@@ -57,6 +57,12 @@ EMAIL_RECIPIENTS=destinatario1@gmail.com,destinatario2@gmail.com
 
 **Nota importante**: El script solo se ejecutará entre `RUN_START_HOUR` y `RUN_END_HOUR`. Esto previene ejecuciones innecesarias durante la noche cuando es poco probable encontrar nuevos turnos.
 
+#### Control de notificaciones duplicadas
+
+- **`NOTIFICATION_TTL_HOURS`**: Tiempo en horas para recordar turnos ya notificados (por defecto: 24)
+
+**Funcionalidad**: El sistema mantiene un historial de turnos ya notificados para evitar enviar emails duplicados sobre el mismo turno. Cada turno se identifica únicamente por cancha + fecha/hora. Después del TTL configurado, el turno se olvida y podrá ser notificado nuevamente si sigue disponible.
+
 #### Email
 
 - **`EMAIL_SENDER`**: Tu dirección de Gmail desde la cual se enviarán las notificaciones
@@ -100,6 +106,8 @@ npm start
 3. El workflow se ejecutará automáticamente cada 30 minutos
 
 **Configuración de horarios en GitHub Actions**: El workflow está configurado para respetar los horarios de ejecución. Por defecto, en Argentina (UTC-3), se ejecuta de 7 AM a 11 PM hora local. GitHub Actions corre en UTC, por lo que los horarios están ajustados automáticamente.
+
+**Manejo de historial en GitHub Actions**: El sistema usa GitHub Cache para persistir el historial de turnos notificados entre ejecuciones. Esto asegura que no recibas emails duplicados sobre el mismo turno disponible.
 
 Para ejecutar manualmente desde GitHub:
 
