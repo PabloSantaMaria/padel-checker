@@ -109,6 +109,59 @@ npm start
 
 **Manejo de historial en GitHub Actions**: El sistema usa GitHub Cache para persistir el historial de turnos notificados entre ejecuciones. Esto asegura que no recibas emails duplicados sobre el mismo turno disponible.
 
+#### Flujo completo de una ejecución en GitHub Actions
+
+```text
+1. ⏰ Cron ejecuta el workflow (cada 30 min)
+   ↓
+2. 📁 Checkout del código
+   ↓  
+3. 🔧 Setup Node.js
+   ↓
+4. 📥 RESTORE: "¿Hay historial guardado?"
+   ├── ✅ SÍ → Descarga notified-slots.json
+   └── ❌ NO → Continúa sin archivo (primera vez)
+   ↓
+5. 📦 Install dependencies
+   ↓
+6. 🔨 Compile TypeScript  
+   ↓
+7. ▶️ Run script → El script:
+   │   ├── Lee notified-slots.json (si existe)
+   │   ├── Filtra turnos ya notificados  
+   │   ├── Envía emails solo de turnos nuevos
+   │   └── Actualiza notified-slots.json
+   ↓
+8. 💾 SAVE: Guarda notified-slots.json actualizado
+```
+
+Este flujo se repite automáticamente cada 30 minutos, manteniendo la "memoria" de turnos ya notificados entre ejecuciones gracias al sistema de cache de GitHub Actions.
+
+#### Ejemplo práctico del sistema anti-duplicados
+
+**Ejecución 1 (12:00 PM)**
+
+- No hay cache previo
+- Encuentra turno: "Cancha 1, hoy 21:00"
+- ✉️ Envía email
+- 💾 Guarda en cache: `{"Cancha 1_21:00": "notificado"}`
+
+**Ejecución 2 (12:30 PM)**
+
+- 📥 Restaura cache de ejecución anterior
+- Encuentra el mismo turno: "Cancha 1, hoy 21:00"
+- ✅ Verifica cache: "Ya fue notificado"
+- ❌ NO envía email
+- Cache permanece igual
+
+**Ejecución 3 (13:00 PM)**
+
+- 📥 Restaura cache
+- El turno desapareció (alguien lo reservó) ✅
+- Encuentra turno nuevo: "Cancha 2, hoy 22:00"
+- ✉️ Envía email del nuevo turno
+- 💾 Actualiza cache: `{"Cancha 1_21:00": "notificado", "Cancha 2_22:00": "notificado"}`
+
 Para ejecutar manualmente desde GitHub:
 
 - Ve a la pestaña "Actions"

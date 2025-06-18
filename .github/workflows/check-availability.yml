@@ -28,6 +28,8 @@ jobs:
       # Para otras zonas horarias, calcular el offset correspondiente
       RUN_START_HOUR: '10'  # 7 AM Argentina (UTC-3)
       RUN_END_HOUR: '2'     # 11 PM Argentina (UTC-3)
+      # Configuración para evitar notificaciones duplicadas
+      NOTIFICATION_TTL_HOURS: '24'  # Recordar turnos por 24 horas
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -37,6 +39,15 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Restore notification history
+        uses: actions/cache/restore@v3
+        id: cache-restore
+        with:
+          path: notified-slots.json
+          key: notification-history-${{ github.run_id }}
+          restore-keys: |
+            notification-history-
+
       - name: Install dependencies
         run: npm ci
 
@@ -45,3 +56,10 @@ jobs:
 
       - name: Run script
         run: node dist/index.js
+
+      - name: Save notification history
+        uses: actions/cache/save@v3
+        if: always()  # Guardar incluso si el script falla
+        with:
+          path: notified-slots.json
+          key: notification-history-${{ github.run_id }}
