@@ -33,6 +33,9 @@ EARLIEST_MINUTE=30
 RUN_START_HOUR=7   # Hora de inicio (7 AM)
 RUN_END_HOUR=23    # Hora de fin (11 PM)
 
+# Configuración para evitar notificaciones duplicadas
+NOTIFICATION_TTL_HOURS=24  # Recordar turnos por 24 horas
+
 # Configuración de email
 EMAIL_SENDER=tu-email@gmail.com
 EMAIL_PASSWORD=tu-contraseña-de-aplicacion
@@ -61,7 +64,48 @@ EMAIL_RECIPIENTS=destinatario1@gmail.com,destinatario2@gmail.com
 
 - **`NOTIFICATION_TTL_HOURS`**: Tiempo en horas para recordar turnos ya notificados (por defecto: 24)
 
-**Funcionalidad**: El sistema mantiene un historial de turnos ya notificados para evitar enviar emails duplicados sobre el mismo turno. Cada turno se identifica únicamente por cancha + fecha/hora. Después del TTL configurado, el turno se olvida y podrá ser notificado nuevamente si sigue disponible.
+**Funcionalidad**: El sistema mantiene un historial de turnos ya notificados para evitar enviar emails duplicados sobre el mismo turno. Cada turno se identifica únicamente por club + cancha + fecha/hora. Después del TTL configurado, el turno se olvida y podrá ser notificado nuevamente si sigue disponible.
+
+#### Configuración de clubes múltiples
+
+La configuración de clubes se maneja a través del archivo `clubs.json` en la raíz del proyecto.
+
+**Funcionalidad**: El sistema puede monitorear múltiples clubes simultáneamente. Los emails agrupan los turnos por club para una mejor organización.
+
+**Archivo de configuración** (`clubs.json`):
+
+```json
+[
+  {
+    "id": 1294,
+    "name": "head-club-tandil-tandil", 
+    "displayName": "Head Tandil",
+    "enabled": true,
+    "reservationUrlTemplate": "https://atcsports.io/venues/head-club-tandil-tandil?dia={date}"
+  },
+  {
+    "id": 796,
+    "name": "pico-deportes-tandil",
+    "displayName": "Pico Deportes", 
+    "enabled": false,
+    "reservationUrlTemplate": "https://atcsports.io/venues/pico-deportes-tandil?dia={date}"
+  }
+]
+```
+
+**Para agregar/quitar clubes**:
+
+1. Edita el archivo `clubs.json`
+2. Puedes deshabilitar temporalmente un club cambiando `enabled: false`
+3. Para agregar un nuevo club, agrega un objeto JSON con las propiedades requeridas
+
+**Propiedades de cada club**:
+
+- `id`: ID numérico del club en la API de AlquilaTuCancha
+- `name`: Nombre interno del club (usado en URLs)
+- `displayName`: Nombre para mostrar en emails
+- `enabled`: `true` para monitorear, `false` para deshabilitar temporalmente
+- `reservationUrlTemplate`: URL de reserva con `{date}` que se reemplaza automáticamente
 
 #### Email
 
@@ -209,11 +253,15 @@ Cada turno incluye:
 ## Estructura del proyecto
 
 ```text
-src/
-├── config.ts      # Configuración y variables de entorno
-├── index.ts       # Lógica principal del checker
-├── mailer.ts      # Configuración y envío de emails
-└── utils.ts       # Utilidades para formateo y validación
+├── clubs.json         # Configuración de clubes a monitorear
+├── .env               # Variables de entorno (crear desde .env.example)
+├── .env.example       # Ejemplo de variables de entorno
+└── src/
+    ├── config.ts      # Configuración y variables de entorno
+    ├── index.ts       # Lógica principal del checker
+    ├── mailer.ts      # Configuración y envío de emails
+    ├── storage.ts     # Sistema de almacenamiento para evitar duplicados
+    └── utils.ts       # Utilidades para formateo y validación
 ```
 
 ## Consideraciones
