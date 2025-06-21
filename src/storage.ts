@@ -67,22 +67,22 @@ export class SlotStorage {
     this.saveData();
   }
 
-  private generateSlotId(court: string, time: string): string {
-    // Crear un ID único basado en cancha y tiempo
+  private generateSlotId(clubId: number, court: string, time: string): string {
+    // Crear un ID único basado en club, cancha y tiempo
     const date = new Date(time);
-    return `${court}_${date.getTime()}`;
+    return `${clubId}_${court}_${date.getTime()}`;
   }
 
-  public hasBeenNotified(court: string, time: string): boolean {
-    const id = this.generateSlotId(court, time);
+  public hasBeenNotified(clubId: number, court: string, time: string): boolean {
+    const id = this.generateSlotId(clubId, court, time);
     return this.data.notifiedSlots.some(slot => slot.id === id);
   }
 
-  public markAsNotified(court: string, time: string): void {
-    const id = this.generateSlotId(court, time);
+  public markAsNotified(clubId: number, court: string, time: string): void {
+    const id = this.generateSlotId(clubId, court, time);
     
     // Evitar duplicados
-    if (!this.hasBeenNotified(court, time)) {
+    if (!this.hasBeenNotified(clubId, court, time)) {
       this.data.notifiedSlots.push({
         id,
         court,
@@ -90,7 +90,7 @@ export class SlotStorage {
         notifiedAt: Date.now()
       });
       
-      console.log(`Turno marcado como notificado: ${court} - ${time}`);
+      console.log(`Turno marcado como notificado: Club ${clubId} - ${court} - ${time}`);
       this.saveData();
     }
   }
