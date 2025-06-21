@@ -13,7 +13,7 @@ export const dateFormatter = new Intl.DateTimeFormat('es-AR', {
 
 // Función para capitalizar solo ciertas palabras (días y meses)
 export function capitalizeWords(str: string): string {
-  return str.replace(/\b(\w+)/g, (match) => {
+  return str.replace(/\b[\wáéíóúñü]+/gi, (match) => {
     // Mantener "de" en minúscula, capitalizar todo lo demás
     if (match.toLowerCase() === 'de') {
       return 'de';
