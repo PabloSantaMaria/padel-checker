@@ -99,3 +99,25 @@ export function getArgentinaDateString(date: Date): string {
   
   return `${year}-${month}-${day}`;
 }
+
+export function printCurrentConfig() {
+  console.log('================ CONFIGURACIÓN ACTUAL ================');
+  console.log(`⏰ Intervalo de chequeo: ${config.checkIntervalMinutes} minutos`);
+  console.log(`📅 Días a revisar: ${config.daysToCheck.join(', ')}`);
+  console.log(`🕒 Horario de ejecución permitido: ${config.runStartHour}:00 a ${config.runEndHour}:00`);
+  console.log(`🔎 Horario mínimo para buscar turnos: ${config.earliestHour}:${config.earliestMinute.toString().padStart(2, '0')}`);
+  console.log(`🏟️ Clubs habilitados:`);
+  config.clubs.forEach(club => {
+    console.log(`   - ${club.displayName} (ID: ${club.id})`);
+  });
+  console.log(`🕑 TTL de notificaciones: ${config.notificationTtlHours} horas`);
+  if (process.env.EMAIL_RECIPIENTS) {
+    console.log(`✉️ Destinatarios: ${process.env.EMAIL_RECIPIENTS}`);
+  }
+  if (process.env.GITHUB_ACTIONS) {
+    console.log('🏃 Modo: GitHub Actions (repetición por cron job)');
+  } else {
+    console.log('🏃 Modo: Ejecución local (repetición automática interna)');
+  }
+  console.log('======================================================');
+}

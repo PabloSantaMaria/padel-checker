@@ -7,6 +7,7 @@ import {
   isValidSlot,
   isWithinRunningHours,
   getArgentinaDateString,
+  printCurrentConfig,
 } from './utils';
 import { SlotStorage } from './storage';
 
@@ -135,6 +136,8 @@ function generateClubGroupedMessages(slots: Slot[]): string[] {
 }
 
 (async () => {
+  printCurrentConfig();
+  
   const run = async () => {
     try {
       // Verificar si estamos dentro del horario permitido
