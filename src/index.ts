@@ -29,7 +29,12 @@ async function checkClubAvailability(club: Club, dateStr: string, storage: SlotS
     const response = await axios.get(url);
     
     // La API devuelve un objeto con available_courts, cada uno con available_slots
-    const slots = response.data.available_courts.flatMap((court: any) =>
+    // Filtrar solo canchas de Pádel usando el sport_id configurado
+    const padelCourts = response.data.available_courts.filter((court: any) => 
+      court.sport_ids && court.sport_ids.includes(config.sports.padel)
+    );
+    
+    const slots = padelCourts.flatMap((court: any) =>
       court.available_slots.map((slot: any) => ({
         club,
         court: court.name,

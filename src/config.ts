@@ -55,6 +55,10 @@ export const config = {
   // Configuración de clubes desde archivo JSON
   clubs: loadClubsConfig(),
   baseUrl: 'https://alquilatucancha.com/api/v3/availability/sportclubs',
+  // Sport IDs para filtrar por deporte
+  sports: {
+    padel: "7", // ID del deporte Pádel en la API
+  },
 };
 
 // Función helper para obtener club por ID
