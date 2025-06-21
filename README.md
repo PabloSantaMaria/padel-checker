@@ -214,18 +214,6 @@ Para ejecutar manualmente desde GitHub:
 
 ## Personalización avanzada
 
-### Cambiar el club
-
-Actualmente está configurado para Head Tandil. Para cambiar el club, modifica el archivo `src/config.ts`:
-
-```typescript
-export const config = {
-  // ...
-  clubId: 1294, // ID del club (cambiar por el que necesites)
-  baseUrl: 'https://alquilatucancha.com/api/v3/availability/sportclubs',
-};
-```
-
 ### Ajustar formato de notificaciones
 
 El formato de las notificaciones se puede modificar en `src/index.ts` en la función que genera los mensajes.
