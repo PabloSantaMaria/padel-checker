@@ -67,7 +67,7 @@ function generateClubGroupedMessages(slots) {
       turno = capitalizeWords(turno);
       
       const urlDate = getArgentinaDateString(date);
-      const reservationUrl = club.reservationUrlTemplate.replace('{date}', urlDate);
+      const reservationUrl = club.reservationUrlTemplate.replace('{date}', urlDate) + `&sportIds=${config.sports.padel}`;
       
       messages.push(`📅 ${turno} - 🏟️ ${slot.court}\n🔗 Reservar: ${reservationUrl}`);
     });

@@ -226,17 +226,17 @@ Cuando encuentra turnos disponibles, recibirás un email con el siguiente format
 🎾 ¡Hay turnos disponibles!
 
 📅 Lunes, 16 de Junio, 18:30 - 🏟️ Cancha 3
-🔗 Reservar: https://atcsports.io/venues/head-club-tandil-tandil?dia=2025-06-16
+🔗 Reservar: https://atcsports.io/venues/head-club-tandil-tandil?dia=2025-06-16&sportIds=7
 
 📅 Jueves, 19 de Junio, 19:00 - 🏟️ Cancha 1
-🔗 Reservar: https://atcsports.io/venues/head-club-tandil-tandil?dia=2025-06-19
+🔗 Reservar: https://atcsports.io/venues/head-club-tandil-tandil?dia=2025-06-19&sportIds=7
 ```
 
 Cada turno incluye:
 
 - 📅 **Fecha y hora**: En formato argentino (24 horas)
 - 🏟️ **Cancha**: Nombre de la cancha disponible
-- 🔗 **Link directo**: Para ir directamente a reservar en la web
+- 🔗 **Link directo**: Para ir directamente a reservar en la web, **con filtro automático de Pádel** (`sportIds=7`)
 
 ## Estructura del proyecto
 
