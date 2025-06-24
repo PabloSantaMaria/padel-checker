@@ -140,9 +140,9 @@ function generateClubGroupedMessages(slots: Slot[]): { messages: string[], clubs
   return { messages, clubsWithSlots };
 }
 
-(async () => {
+async function main() {
   printCurrentConfig();
-  
+
   const run = async () => {
     try {
       // Verificar si estamos dentro del horario permitido
@@ -152,16 +152,16 @@ function generateClubGroupedMessages(slots: Slot[]): { messages: string[], clubs
 
       const result = await checkAvailability();
       const { messages: available, storage, clubsWithSlots } = result;
-      
+
       if (available.length) {
         // Mostrar turnos disponibles en consola
         console.log('Turnos disponibles encontrados:', available);
-        
+
         // Crear asunto dinámico basado en clubes con turnos disponibles
         const clubNamesWithSlots = clubsWithSlots.map(c => c.displayName).join(' y ');
         const configInfo = getConfigurationInfo();
         const message = `🎾 ¡Hay turnos disponibles!\n\n${available.join('\n')}\n\n\n${configInfo}`;
-        
+
         await sendEmail(`🎾 Turnos disponibles en ${clubNamesWithSlots}!`, message);
         console.log(`📧 Email enviado con ${available.length} turnos nuevos`);
       } else {
@@ -186,4 +186,8 @@ function generateClubGroupedMessages(slots: Slot[]): { messages: string[], clubs
       'Ejecutando en GitHub Actions - el cron job maneja la repetición',
     );
   }
+}
+
+(async () => {
+  await main();
 })();

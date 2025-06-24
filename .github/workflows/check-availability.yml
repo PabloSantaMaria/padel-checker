@@ -20,8 +20,8 @@ jobs:
       # Configuración de disponibilidad de canchas
       CHECK_INTERVAL_MINUTES: '30'
       DAYS_TO_CHECK: 'MO,TU,WE,TH,FR'
-      EARLIEST_HOUR: '18'
-      EARLIEST_MINUTE: '00'
+      EARLIEST_HOUR: '17'
+      EARLIEST_MINUTE: '30'
       # Configuración de horarios de ejecución
       # IMPORTANTE: GitHub Actions corre en UTC, ajustar según tu zona horaria
       # Argentina (UTC-3): 7 AM = 10 AM UTC, 11 PM = 2 AM UTC (día siguiente)
