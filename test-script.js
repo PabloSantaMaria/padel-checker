@@ -40,7 +40,7 @@ function createMockSlots() {
 
 // Función para generar mensajes como en el código real
 function generateClubGroupedMessages(slots) {
-  if (slots.length === 0) return [];
+  if (slots.length === 0) return { messages: [], clubsWithSlots: [] };
 
   // Agrupar slots por club
   const slotsByClub = new Map();
@@ -53,12 +53,14 @@ function generateClubGroupedMessages(slots) {
   });
 
   const messages = [];
+  const clubsWithSlots = [];
 
   // Generar mensaje para cada club
   slotsByClub.forEach((clubSlots, clubId) => {
     const club = getClubById(clubId);
     if (!club) return;
 
+    clubsWithSlots.push(club);
     messages.push(`\n🏢 **${club.displayName}**`);
     
     clubSlots.forEach(slot => {
@@ -73,7 +75,7 @@ function generateClubGroupedMessages(slots) {
     });
   });
 
-  return messages;
+  return { messages, clubsWithSlots };
 }
 
 async function testCompleteSystem() {
@@ -123,17 +125,20 @@ async function testCompleteSystem() {
     console.log('\n6. 📧 Generando y enviando email:');
     
     // Generar mensajes agrupados por club
-    const messages = generateClubGroupedMessages(newSlots);
+    const result = generateClubGroupedMessages(newSlots);
+    const messages = result.messages;
+    const clubsWithSlots = result.clubsWithSlots;
     console.log('   Mensajes generados:');
     messages.forEach(msg => console.log(`     ${msg}`));
     
-    // Crear mensaje final
-    const clubNames = config.clubs.map(c => c.displayName).join(' y ');
+    // Crear mensaje final con asunto dinámico
+    const clubNamesWithSlots = clubsWithSlots.map(c => c.displayName).join(' y ');
     const finalMessage = `🎾 ¡Hay turnos disponibles!\n${messages.join('\n')}`;
     
-    console.log('\n   📧 Enviando email...');
+    console.log(`\n   📧 Enviando email con asunto dinámico: "🎾 Turnos disponibles en ${clubNamesWithSlots}!"`);
+    console.log('   📧 Enviando email...');
     try {
-      await sendEmail(`🎾 Turnos disponibles en ${clubNames}!`, finalMessage);
+      await sendEmail(`🎾 Turnos disponibles en ${clubNamesWithSlots}!`, finalMessage);
       console.log('   ✅ Email enviado exitosamente');
       
       // Marcar como notificados
