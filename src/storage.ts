@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { config } from './config';
 
 interface NotifiedSlot {
   id: string; // Identificador único del turno
@@ -14,7 +15,7 @@ interface StorageData {
 }
 
 const STORAGE_FILE = path.join(process.cwd(), 'notified-slots.json');
-const TTL_HOURS = parseInt(process.env.NOTIFICATION_TTL_HOURS || '24'); // TTL configurable, 24h por defecto
+const TTL_HOURS = config.notifications.ttlHours; // TTL desde configuración centralizada
 
 export class SlotStorage {
   private data: StorageData;

@@ -39,26 +39,33 @@ export function isValidSlot(dateStr: string): boolean {
   console.log(`Evaluando slot: ${dateStr} -> Día: ${day}, Hora: ${hour}:${minute.toString().padStart(2, '0')}`);
 
   return (
-    config.daysToCheck.includes(day) &&
-    (hour > config.earliestHour ||
-      (hour === config.earliestHour && minute >= config.earliestMinute))
+    config.scheduling.daysToCheck.includes(day) &&
+    (hour > config.availability.earliestHour ||
+      (hour === config.availability.earliestHour && minute >= config.availability.earliestMinute))
   );
 }
 
 export function isWithinRunningHours(): boolean {
+  // Get current time in the configured timezone
+  const timezone = config.scheduling.timezone || 'UTC';
   const now = new Date();
-  const currentHour = now.getHours();
+  
+  // Convert to configured timezone
+  const localTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }));
+  const currentHour = localTime.getHours();
+  
+  console.log(`Checking running hours in timezone ${timezone}: current hour is ${currentHour}`);
 
   // Manejar el caso donde el horario cruza medianoche (ej: 22:00 - 06:00)
-  if (config.runEndHour <= config.runStartHour) {
+  if (config.scheduling.runEndHour <= config.scheduling.runStartHour) {
     // El horario cruza medianoche
     const isInRange =
-      currentHour >= config.runStartHour || currentHour < config.runEndHour;
+      currentHour >= config.scheduling.runStartHour || currentHour < config.scheduling.runEndHour;
     if (!isInRange) {
       console.log(
-        `Fuera del horario de ejecución (${config.runStartHour}:00 - ${
-          config.runEndHour
-        }:00). Hora actual: ${currentHour}:${now
+        `Fuera del horario de ejecución (${config.scheduling.runStartHour}:00 - ${
+          config.scheduling.runEndHour
+        }:00 ${timezone}). Hora actual: ${currentHour}:${localTime
           .getMinutes()
           .toString()
           .padStart(2, '0')}`,
@@ -68,12 +75,12 @@ export function isWithinRunningHours(): boolean {
   } else {
     // Horario normal (no cruza medianoche)
     const isInRange =
-      currentHour >= config.runStartHour && currentHour < config.runEndHour;
+      currentHour >= config.scheduling.runStartHour && currentHour < config.scheduling.runEndHour;
     if (!isInRange) {
       console.log(
-        `Fuera del horario de ejecución (${config.runStartHour}:00 - ${
-          config.runEndHour
-        }:00). Hora actual: ${currentHour}:${now
+        `Fuera del horario de ejecución (${config.scheduling.runStartHour}:00 - ${
+          config.scheduling.runEndHour
+        }:00 ${timezone}). Hora actual: ${currentHour}:${localTime
           .getMinutes()
           .toString()
           .padStart(2, '0')}`,
@@ -103,17 +110,17 @@ export function getArgentinaDateString(date: Date): string {
 export function getConfigurationInfo(): string {
   const lines = [];
   lines.push('================ CONFIGURACIÓN ACTUAL ================');
-  lines.push(`⏰ Intervalo de chequeo: ${config.checkIntervalMinutes} minutos`);
-  lines.push(`📅 Días a revisar: ${config.daysToCheck.join(', ')}`);
-  lines.push(`🕒 Horario de ejecución permitido: ${config.runStartHour}:00 a ${config.runEndHour}:00`);
-  lines.push(`🔎 Horario mínimo para buscar turnos: ${config.earliestHour}:${config.earliestMinute.toString().padStart(2, '0')}`);
+  lines.push(`⏰ Intervalo de chequeo: ${config.scheduling.checkIntervalMinutes} minutos`);
+  lines.push(`📅 Días a revisar: ${config.scheduling.daysToCheck.join(', ')}`);
+  lines.push(`🕒 Horario de ejecución permitido: ${config.scheduling.runStartHour}:00 a ${config.scheduling.runEndHour}:00`);
+  lines.push(`🔎 Horario mínimo para buscar turnos: ${config.availability.earliestHour}:${config.availability.earliestMinute.toString().padStart(2, '0')}`);
   lines.push(`🏟️ Clubs habilitados:`);
   config.clubs.forEach(club => {
     lines.push(`   - ${club.displayName} (ID: ${club.id})`);
   });
-  lines.push(`🕑 TTL de notificaciones: ${config.notificationTtlHours} horas`);
-  if (process.env.EMAIL_RECIPIENTS) {
-    lines.push(`✉️ Destinatarios: ${process.env.EMAIL_RECIPIENTS}`);
+  lines.push(`🕑 TTL de notificaciones: ${config.notifications.ttlHours} horas`);
+  if (config.email.to) {
+    lines.push(`✉️ Destinatarios: ${config.email.to}`);
   }
   if (process.env.GITHUB_ACTIONS) {
     lines.push('🏃 Modo: GitHub Actions (repetición por cron job)');
