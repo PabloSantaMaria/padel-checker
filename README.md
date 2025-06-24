@@ -1,6 +1,6 @@
 # 🎾 Padel Checker
 
-Un script automatizado que verifica la disponibilidad de canchas de pádel en Head Tandil y envía notificaciones por correo electrónico cuando encuentra turnos disponibles en los horarios configurados.
+Un script automatizado que verifica la disponibilidad de canchas de pádel en Head Tandil y Pico Deportes y envía notificaciones por correo electrónico cuando encuentra turnos disponibles en los horarios configurados.
 
 ## ¿Qué hace?
 
