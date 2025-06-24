@@ -8,6 +8,7 @@ import {
   isWithinRunningHours,
   getArgentinaDateString,
   printCurrentConfig,
+  getConfigurationInfo,
 } from './utils';
 import { SlotStorage } from './storage';
 
@@ -60,7 +61,7 @@ async function checkClubAvailability(club: Club, dateStr: string, storage: SlotS
   }
 }
 
-async function checkAvailability(): Promise<{ messages: string[], storage: SlotStorage }> {
+async function checkAvailability(): Promise<{ messages: string[], storage: SlotStorage, clubsWithSlots: Club[] }> {
   const today = new Date();
   const storage = new SlotStorage();
   const allSlots: Slot[] = [];
@@ -88,18 +89,20 @@ async function checkAvailability(): Promise<{ messages: string[], storage: SlotS
   }
 
   // Generar mensajes agrupados por club
-  const messages = generateClubGroupedMessages(allSlots);
+  const result = generateClubGroupedMessages(allSlots);
+  const messages = result.messages;
+  const clubsWithSlots = result.clubsWithSlots;
   
   // Marcar todos los turnos encontrados como notificados
   allSlots.forEach(slot => {
     storage.markAsNotified(slot.club.id, slot.court, slot.time);
   });
 
-  return { messages, storage };
+  return { messages, storage, clubsWithSlots };
 }
 
-function generateClubGroupedMessages(slots: Slot[]): string[] {
-  if (slots.length === 0) return [];
+function generateClubGroupedMessages(slots: Slot[]): { messages: string[], clubsWithSlots: Club[] } {
+  if (slots.length === 0) return { messages: [], clubsWithSlots: [] };
 
   // Agrupar slots por club
   const slotsByClub = new Map<number, Slot[]>();
@@ -112,12 +115,14 @@ function generateClubGroupedMessages(slots: Slot[]): string[] {
   });
 
   const messages: string[] = [];
+  const clubsWithSlots: Club[] = [];
 
   // Generar mensaje para cada club
   slotsByClub.forEach((clubSlots, clubId) => {
     const club = getClubById(clubId);
     if (!club) return;
 
+    clubsWithSlots.push(club);
     messages.push(`\n🏢 **${club.displayName}**`);
     
     clubSlots.forEach(slot => {
@@ -132,7 +137,7 @@ function generateClubGroupedMessages(slots: Slot[]): string[] {
     });
   });
 
-  return messages;
+  return { messages, clubsWithSlots };
 }
 
 (async () => {
@@ -146,17 +151,18 @@ function generateClubGroupedMessages(slots: Slot[]): string[] {
       }
 
       const result = await checkAvailability();
-      const { messages: available, storage } = result;
+      const { messages: available, storage, clubsWithSlots } = result;
       
       if (available.length) {
         // Mostrar turnos disponibles en consola
         console.log('Turnos disponibles encontrados:', available);
         
-        // Crear mensaje con formato multi-club
-        const clubNames = config.clubs.map(c => c.displayName).join(' y ');
-        const message = `🎾 ¡Hay turnos disponibles!\n${available.join('\n')}`;
+        // Crear asunto dinámico basado en clubes con turnos disponibles
+        const clubNamesWithSlots = clubsWithSlots.map(c => c.displayName).join(' y ');
+        const configInfo = getConfigurationInfo();
+        const message = `🎾 ¡Hay turnos disponibles!\n\n${available.join('\n')}\n\n\n${configInfo}`;
         
-        await sendEmail(`🎾 Turnos disponibles en ${clubNames}!`, message);
+        await sendEmail(`🎾 Turnos disponibles en ${clubNamesWithSlots}!`, message);
         console.log(`📧 Email enviado con ${available.length} turnos nuevos`);
       } else {
         console.log('Sin turnos nuevos para notificar (ya fueron enviados anteriormente o no hay disponibles).');
