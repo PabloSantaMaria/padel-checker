@@ -1,0 +1,38 @@
+{
+  "scheduling": {
+    "checkIntervalMinutes": 30,
+    "daysToCheck": ["MO", "TU", "WE", "TH", "FR"],
+    "runStartHour": 7,
+    "runEndHour": 23,
+    "timezone": "America/Argentina/Buenos_Aires"
+  },
+  "availability": {
+    "earliestHour": 17,
+    "earliestMinute": 30
+  },
+  "notifications": {
+    "ttlHours": 24
+  },
+  "api": {
+    "baseUrl": "https://alquilatucancha.com/api/v3/availability/sportclubs",
+    "sports": {
+      "padel": "7"
+    }
+  },
+  "clubs": [
+    {
+      "id": 1294,
+      "name": "head-club-tandil-tandil",
+      "displayName": "Head Tandil",
+      "enabled": true,
+      "reservationUrlTemplate": "https://atcsports.io/venues/head-club-tandil-tandil?dia={date}"
+    },
+    {
+      "id": 796,
+      "name": "pico-deportes-tandil",
+      "displayName": "Pico Deportes",
+      "enabled": true,
+      "reservationUrlTemplate": "https://atcsports.io/venues/pico-deportes-tandil?dia={date}"
+    }
+  ]
+}

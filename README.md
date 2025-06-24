@@ -18,96 +18,95 @@ Este proyecto monitorea automáticamente la disponibilidad de canchas de pádel 
 
 ## Configuración
 
-### 1. Variables de entorno
+### 1. Configuración principal (app-config.json)
 
-Crea un archivo `.env` en la raíz del proyecto con la siguiente configuración:
+El proyecto utiliza un archivo `app-config.json` para centralizar toda la configuración no sensible:
+
+```json
+{
+  "scheduling": {
+    "checkIntervalMinutes": 30,
+    "daysToCheck": ["MO", "TU", "WE", "TH", "FR"],
+    "runStartHour": 7,
+    "runEndHour": 23,
+    "timezone": "America/Argentina/Buenos_Aires"
+  },
+  "availability": {
+    "earliestHour": 18,
+    "earliestMinute": 30
+  },
+  "notifications": {
+    "ttlHours": 24
+  },
+  "api": {
+    "baseUrl": "https://alquilatucancha.com/api/v3/availability/sportclubs",
+    "sports": {
+      "padel": "7"
+    }
+  },
+  "clubs": [
+    {
+      "id": 1294,
+      "name": "head-club-tandil-tandil",
+      "displayName": "Head Tandil",
+      "enabled": true,
+      "reservationUrlTemplate": "https://atcsports.io/venues/head-club-tandil-tandil?dia={date}"
+    }
+  ]
+}
+```
+
+### 2. Variables de entorno (.env)
+
+Solo para información sensible como credenciales de email:
 
 ```env
-# Configuración del checker
-CHECK_INTERVAL_MINUTES=30
-DAYS_TO_CHECK=MO,TU,WE,TH,FR
-EARLIEST_HOUR=18
-EARLIEST_MINUTE=30
-
-# Configuración de horarios de ejecución
-RUN_START_HOUR=7   # Hora de inicio (7 AM)
-RUN_END_HOUR=23    # Hora de fin (11 PM)
-
-# Configuración para evitar notificaciones duplicadas
-NOTIFICATION_TTL_HOURS=24  # Recordar turnos por 24 horas
-
-# Configuración de email
+# Configuración de email (sensible)
 EMAIL_SENDER=tu-email@gmail.com
 EMAIL_PASSWORD=tu-contraseña-de-aplicacion
 EMAIL_RECIPIENTS=destinatario1@gmail.com,destinatario2@gmail.com
 ```
 
-### 2. Parámetros configurables
+### 3. Parámetros configurables
 
-#### Horarios y días
+#### Configuración en app-config.json
 
-- **`CHECK_INTERVAL_MINUTES`**: Intervalo en minutos entre verificaciones (por defecto: 30)
-- **`DAYS_TO_CHECK`**: Días de la semana a verificar usando códigos de 2 letras:
+**Sección `scheduling`:**
+- **`checkIntervalMinutes`**: Intervalo en minutos entre verificaciones (por defecto: 30)
+- **`daysToCheck`**: Array de días de la semana a verificar usando códigos de 2 letras:
   - `MO` = Lunes, `TU` = Martes, `WE` = Miércoles, `TH` = Jueves, `FR` = Viernes, `SA` = Sábado, `SU` = Domingo
-  - Ejemplo: `MO,TU,WE,TH,FR` para días laborables
-- **`EARLIEST_HOUR`**: Hora mínima para buscar turnos (formato 24h, por defecto: 18)
-- **`EARLIEST_MINUTE`**: Minuto mínimo para buscar turnos (por defecto: 30)
+  - Ejemplo: `["MO","TU","WE","TH","FR"]` para días laborables
+- **`runStartHour`**: Hora de inicio para ejecutar el checker (formato 24h, por defecto: 7)
+- **`runEndHour`**: Hora de fin para ejecutar el checker (formato 24h, por defecto: 23)
+- **`timezone`**: Zona horaria para los horarios de ejecución (por defecto: "America/Argentina/Buenos_Aires")
 
-#### Control de horarios de ejecución
+**Sección `availability`:**
+- **`earliestHour`**: Hora mínima para buscar turnos (formato 24h, por defecto: 18)
+- **`earliestMinute`**: Minuto mínimo para buscar turnos (por defecto: 30)
 
-- **`RUN_START_HOUR`**: Hora de inicio para ejecutar el checker (formato 24h, por defecto: 7)
-- **`RUN_END_HOUR`**: Hora de fin para ejecutar el checker (formato 24h, por defecto: 23)
+**Sección `notifications`:**
+- **`ttlHours`**: Tiempo en horas para recordar turnos ya notificados (por defecto: 24)
 
-**Nota importante**: El script solo se ejecutará entre `RUN_START_HOUR` y `RUN_END_HOUR`. Esto previene ejecuciones innecesarias durante la noche cuando es poco probable encontrar nuevos turnos.
+**Sección `clubs`:**
+- Array de clubes con sus configuraciones individuales (ID, nombre, URL de reserva, etc.)
+- Cada club debe tener las propiedades: `id`, `name`, `displayName`, `enabled`, `reservationUrlTemplate`
+- Solo los clubes con `enabled: true` serán monitoreados
+- El sistema puede monitorear múltiples clubes simultáneamente
 
-#### Control de notificaciones duplicadas
-
-- **`NOTIFICATION_TTL_HOURS`**: Tiempo en horas para recordar turnos ya notificados (por defecto: 24)
-
-**Funcionalidad**: El sistema mantiene un historial de turnos ya notificados para evitar enviar emails duplicados sobre el mismo turno. Cada turno se identifica únicamente por club + cancha + fecha/hora. Después del TTL configurado, el turno se olvida y podrá ser notificado nuevamente si sigue disponible.
-
-#### Configuración de clubes múltiples
-
-La configuración de clubes se maneja a través del archivo `clubs.json` en la raíz del proyecto.
-
-**Funcionalidad**: El sistema puede monitorear múltiples clubes simultáneamente. Los emails agrupan los turnos por club para una mejor organización.
-
-**Archivo de configuración** (`clubs.json`):
-
-```json
-[
-  {
-    "id": 1294,
-    "name": "head-club-tandil-tandil", 
-    "displayName": "Head Tandil",
-    "enabled": true,
-    "reservationUrlTemplate": "https://atcsports.io/venues/head-club-tandil-tandil?dia={date}"
-  },
-  {
-    "id": 796,
-    "name": "pico-deportes-tandil",
-    "displayName": "Pico Deportes", 
-    "enabled": false,
-    "reservationUrlTemplate": "https://atcsports.io/venues/pico-deportes-tandil?dia={date}"
-  }
-]
-```
-
-**Para agregar/quitar clubes**:
-
-1. Edita el archivo `clubs.json`
+**Para agregar/modificar clubes**:
+1. Edita la sección `clubs` en `app-config.json`
 2. Puedes deshabilitar temporalmente un club cambiando `enabled: false`
 3. Para agregar un nuevo club, agrega un objeto JSON con las propiedades requeridas
 
-**Propiedades de cada club**:
+**Nota importante**: El script solo se ejecutará entre `runStartHour` y `runEndHour` según la zona horaria configurada (`timezone`). Esto previene ejecuciones innecesarias durante la noche cuando es poco probable encontrar nuevos turnos.
 
-- `id`: ID numérico del club en la API de AlquilaTuCancha
-- `name`: Nombre interno del club (usado en URLs)
-- `displayName`: Nombre para mostrar en emails
-- `enabled`: `true` para monitorear, `false` para deshabilitar temporalmente
-- `reservationUrlTemplate`: URL de reserva con `{date}` que se reemplaza automáticamente
+**Zona horaria**: Los horarios siempre se interpretan en la zona horaria especificada en `timezone`, independientemente de dónde se ejecute el código (local, GitHub Actions, etc.). Para Argentina usa `"America/Argentina/Buenos_Aires"`, para otras zonas consulta la [lista de zonas horarias IANA](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
-#### Email
+**Funcionalidad**: El sistema mantiene un historial de turnos ya notificados para evitar enviar emails duplicados sobre el mismo turno. Cada turno se identifica únicamente por club + cancha + fecha/hora. Después del TTL configurado, el turno se olvida y podrá ser notificado nuevamente si sigue disponible.
+
+#### Variables de entorno (.env)
+
+Las siguientes variables deben configurarse en el archivo `.env` para información sensible:
 
 - **`EMAIL_SENDER`**: Tu dirección de Gmail desde la cual se enviarán las notificaciones
 - **`EMAIL_PASSWORD`**: Contraseña de aplicación de Gmail (ver sección de seguridad)
@@ -149,7 +148,13 @@ npm start
 
 3. El workflow se ejecutará automáticamente cada 30 minutos
 
-**Configuración de horarios en GitHub Actions**: El workflow está configurado para respetar los horarios de ejecución. Por defecto, en Argentina (UTC-3), se ejecuta de 7 AM a 11 PM hora local. GitHub Actions corre en UTC, por lo que los horarios están ajustados automáticamente.
+**Configuración de horarios en GitHub Actions**: El sistema maneja automáticamente las diferencias de zona horaria usando la configuración `timezone` en `app-config.json`. Los horarios (`runStartHour` y `runEndHour`) se interpretan siempre en la zona horaria configurada, sin importar dónde se ejecute el código:
+
+- **Ejecución local**: Convierte la hora del sistema a la zona horaria configurada
+- **GitHub Actions**: Convierte la hora UTC del servidor a la zona horaria configurada
+- **Resultado**: Mismo comportamiento en ambos entornos (ej: 7 AM - 11 PM Argentina)
+
+Esto significa que no necesitas configuraciones diferentes para local vs GitHub Actions.
 
 **Manejo de historial en GitHub Actions**: El sistema usa GitHub Cache para persistir el historial de turnos notificados entre ejecuciones. Esto asegura que no recibas emails duplicados sobre el mismo turno disponible.
 
@@ -241,11 +246,11 @@ Cada turno incluye:
 ## Estructura del proyecto
 
 ```text
-├── clubs.json         # Configuración de clubes a monitorear
-├── .env               # Variables de entorno (crear desde .env.example)
+├── app-config.json    # Configuración principal de la aplicación
+├── .env               # Variables de entorno para información sensible
 ├── .env.example       # Ejemplo de variables de entorno
 └── src/
-    ├── config.ts      # Configuración y variables de entorno
+    ├── config.ts      # Carga y procesamiento de configuración
     ├── index.ts       # Lógica principal del checker
     ├── mailer.ts      # Configuración y envío de emails
     ├── storage.ts     # Sistema de almacenamiento para evitar duplicados
@@ -275,6 +280,6 @@ Cada turno incluye:
 
 ### El script no encuentra turnos
 
-- Ajusta los parámetros `EARLIEST_HOUR` y `EARLIEST_MINUTE`
-- Verifica que los días configurados en `DAYS_TO_CHECK` sean correctos
+- Ajusta los parámetros `earliestHour` y `earliestMinute` en `app-config.json`
+- Verifica que los días configurados en `daysToCheck` sean correctos
 - El club puede no tener disponibilidad en los horarios buscados

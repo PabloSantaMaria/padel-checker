@@ -25,7 +25,7 @@ interface ClubAvailabilityResult {
 }
 
 async function checkClubAvailability(club: Club, dateStr: string, storage: SlotStorage): Promise<Slot[]> {
-  const url = `${config.baseUrl}/${club.id}?date=${dateStr}`;
+  const url = `${config.api.baseUrl}/${club.id}?date=${dateStr}`;
   
   try {
     const response = await axios.get(url);
@@ -33,7 +33,7 @@ async function checkClubAvailability(club: Club, dateStr: string, storage: SlotS
     // La API devuelve un objeto con available_courts, cada uno con available_slots
     // Filtrar solo canchas de Pádel usando el sport_id configurado
     const padelCourts = response.data.available_courts.filter((court: any) => 
-      court.sport_ids && court.sport_ids.includes(config.sports.padel)
+      court.sport_ids && court.sport_ids.includes(config.api.sports.padel)
     );
     
     const slots = padelCourts.flatMap((court: any) =>
@@ -131,7 +131,7 @@ function generateClubGroupedMessages(slots: Slot[]): { messages: string[], clubs
       turno = capitalizeWords(turno);
       
       const urlDate = getArgentinaDateString(date);
-      const reservationUrl = club.reservationUrlTemplate.replace('{date}', urlDate) + `&sportIds=${config.sports.padel}`;
+      const reservationUrl = club.reservationUrlTemplate.replace('{date}', urlDate) + `&sportIds=${config.api.sports.padel}`;
       
       messages.push(`📅 ${turno} - 🏟️ ${slot.court}\n🔗 Reservar: ${reservationUrl}`);
     });
@@ -178,9 +178,9 @@ async function main() {
   // GitHub Actions maneja la repetición con cron jobs
   if (!process.env.GITHUB_ACTIONS) {
     console.log(
-      `Configurando ejecución automática cada ${config.checkIntervalMinutes} minutos...`,
+      `Configurando ejecución automática cada ${config.scheduling.checkIntervalMinutes} minutos...`,
     );
-    setInterval(run, config.checkIntervalMinutes * 60 * 1000);
+    setInterval(run, config.scheduling.checkIntervalMinutes * 60 * 1000);
   } else {
     console.log(
       'Ejecutando en GitHub Actions - el cron job maneja la repetición',
