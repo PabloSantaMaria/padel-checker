@@ -109,11 +109,11 @@ export function getArgentinaDateString(date: Date): string {
 
 export function getConfigurationInfo(): string {
   const lines = [];
-  lines.push('================ CONFIGURACIÓN ACTUAL ================');
+  lines.push('==== CONFIGURACIÓN ACTUAL ====');
   lines.push(`⏰ Intervalo de chequeo: ${config.scheduling.checkIntervalMinutes} minutos`);
   lines.push(`📅 Días a revisar: ${config.scheduling.daysToCheck.join(', ')}`);
-  lines.push(`🕒 Horario de ejecución permitido: ${config.scheduling.runStartHour}:00 a ${config.scheduling.runEndHour}:00`);
-  lines.push(`🔎 Horario mínimo para buscar turnos: ${config.availability.earliestHour}:${config.availability.earliestMinute.toString().padStart(2, '0')}`);
+  lines.push(`🕒 Horario de ejecución (hs): ${config.scheduling.runStartHour}:00 a ${config.scheduling.runEndHour}:00`);
+  lines.push(`🔎 Turnos a partir de (hs): ${config.availability.earliestHour}:${config.availability.earliestMinute.toString().padStart(2, '0')}`);
   lines.push(`🏟️ Clubs habilitados:`);
   config.clubs.forEach(club => {
     lines.push(`   - ${club.displayName} (ID: ${club.id})`);
@@ -127,7 +127,7 @@ export function getConfigurationInfo(): string {
   } else {
     lines.push('🏃 Modo: Ejecución local (repetición automática interna)');
   }
-  lines.push('======================================================');
+  lines.push('==============================');
   return lines.join('\n');
 }
 

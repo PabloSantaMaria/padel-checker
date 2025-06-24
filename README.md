@@ -72,6 +72,7 @@ EMAIL_RECIPIENTS=destinatario1@gmail.com,destinatario2@gmail.com
 #### Configuración en app-config.json
 
 **Sección `scheduling`:**
+
 - **`checkIntervalMinutes`**: Intervalo en minutos entre verificaciones (por defecto: 30)
 - **`daysToCheck`**: Array de días de la semana a verificar usando códigos de 2 letras:
   - `MO` = Lunes, `TU` = Martes, `WE` = Miércoles, `TH` = Jueves, `FR` = Viernes, `SA` = Sábado, `SU` = Domingo
@@ -81,19 +82,23 @@ EMAIL_RECIPIENTS=destinatario1@gmail.com,destinatario2@gmail.com
 - **`timezone`**: Zona horaria para los horarios de ejecución (por defecto: "America/Argentina/Buenos_Aires")
 
 **Sección `availability`:**
+
 - **`earliestHour`**: Hora mínima para buscar turnos (formato 24h, por defecto: 18)
 - **`earliestMinute`**: Minuto mínimo para buscar turnos (por defecto: 30)
 
 **Sección `notifications`:**
+
 - **`ttlHours`**: Tiempo en horas para recordar turnos ya notificados (por defecto: 24)
 
 **Sección `clubs`:**
+
 - Array de clubes con sus configuraciones individuales (ID, nombre, URL de reserva, etc.)
 - Cada club debe tener las propiedades: `id`, `name`, `displayName`, `enabled`, `reservationUrlTemplate`
 - Solo los clubes con `enabled: true` serán monitoreados
 - El sistema puede monitorear múltiples clubes simultáneamente
 
 **Para agregar/modificar clubes**:
+
 1. Edita la sección `clubs` en `app-config.json`
 2. Puedes deshabilitar temporalmente un club cambiando `enabled: false`
 3. Para agregar un nuevo club, agrega un objeto JSON con las propiedades requeridas
@@ -274,14 +279,15 @@ Cada turno incluye:
 ## Estructura del proyecto
 
 ```text
-├── app-config.json    # Configuración principal de la aplicación
+├── app-config.json     # Configuración principal de la aplicación
 ├── .env               # Variables de entorno para información sensible
 ├── .env.example       # Ejemplo de variables de entorno
 ├── src/               # Código fuente TypeScript
-│   ├── config.ts      # Carga y procesamiento de configuración
+│   ├── config.ts       # Carga y procesamiento de configuración
 │   ├── index.ts       # Lógica principal del checker
 │   ├── mailer.ts      # Configuración y envío de emails
 │   ├── storage.ts     # Sistema de almacenamiento para evitar duplicados
+│   ├── types.ts       # Modelos
 │   └── utils.ts       # Utilidades para formateo y validación
 └── tests/             # Suite de pruebas del sistema
     ├── test-config.js          # Prueba de configuración
