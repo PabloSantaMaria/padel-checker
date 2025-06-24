@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { config, Club, getClubById } from './config';
+import { config, getClubById } from './config';
 import { sendEmail } from './mailer';
 import {
   capitalizeWords,
@@ -11,33 +11,22 @@ import {
   getConfigurationInfo,
 } from './utils';
 import { SlotStorage } from './storage';
-
-// Tipos para mejor organización
-interface Slot {
-  club: Club;
-  court: string;
-  time: string;
-}
-
-interface ClubAvailabilityResult {
-  club: Club;
-  slots: Slot[];
-}
+import { Slot, Club, ApiResponse } from './types';
 
 async function checkClubAvailability(club: Club, dateStr: string, storage: SlotStorage): Promise<Slot[]> {
   const url = `${config.api.baseUrl}/${club.id}?date=${dateStr}`;
   
   try {
-    const response = await axios.get(url);
+    const response = await axios.get<ApiResponse>(url);
     
     // La API devuelve un objeto con available_courts, cada uno con available_slots
     // Filtrar solo canchas de Pádel usando el sport_id configurado
-    const padelCourts = response.data.available_courts.filter((court: any) => 
+    const padelCourts = response.data.available_courts.filter(court => 
       court.sport_ids && court.sport_ids.includes(config.api.sports.padel)
     );
     
-    const slots = padelCourts.flatMap((court: any) =>
-      court.available_slots.map((slot: any) => ({
+    const slots = padelCourts.flatMap(court =>
+      court.available_slots.map(slot => ({
         club,
         court: court.name,
         time: slot.start,

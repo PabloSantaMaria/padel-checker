@@ -1,40 +1,9 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { AppConfig, Club } from './types';
 
 dotenv.config();
-
-export interface Club {
-  id: number;
-  name: string;
-  displayName: string;
-  enabled: boolean;
-  reservationUrlTemplate: string; // Template con {date} que se reemplazará
-}
-
-export interface AppConfig {
-  scheduling: {
-    checkIntervalMinutes: number;
-    daysToCheck: string[];
-    runStartHour: number;
-    runEndHour: number;
-    timezone?: string;
-  };
-  availability: {
-    earliestHour: number;
-    earliestMinute: number;
-  };
-  notifications: {
-    ttlHours: number;
-  };
-  api: {
-    baseUrl: string;
-    sports: {
-      padel: string;
-    };
-  };
-  clubs: Club[];
-}
 
 // Cargar configuración desde archivo JSON
 function loadConfig(): AppConfig {

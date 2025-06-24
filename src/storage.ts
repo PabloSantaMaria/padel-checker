@@ -1,18 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from './config';
-
-interface NotifiedSlot {
-  id: string; // Identificador único del turno
-  court: string;
-  time: string;
-  notifiedAt: number; // Timestamp cuando se notificó
-}
-
-interface StorageData {
-  notifiedSlots: NotifiedSlot[];
-  lastCleanup: number;
-}
+import { StorageData } from './types';
 
 const STORAGE_FILE = path.join(process.cwd(), 'notified-slots.json');
 const TTL_HOURS = config.notifications.ttlHours; // TTL desde configuración centralizada
