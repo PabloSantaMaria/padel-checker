@@ -125,6 +125,34 @@ Para usar Gmail como servicio de envío, necesitas:
 
 ## Instalación y uso
 
+### Pruebas del sistema
+
+El proyecto incluye un conjunto completo de pruebas ubicadas en la carpeta `tests/`:
+
+```bash
+# Ejecutar todas las pruebas
+npm test
+
+# Ejecutar pruebas individuales
+npm run test:config    # Configuración del sistema
+npm run test:api       # Conectividad con APIs
+npm run test:utils     # Funciones utilitarias
+npm run test:storage   # Sistema de almacenamiento
+npm run test:system    # Prueba completa del sistema (puede enviar email)
+```
+
+Las pruebas verifican:
+
+- ✅ Carga correcta de configuración desde `app-config.json`
+- ✅ Conectividad con las APIs de los clubes
+- ✅ Filtrado correcto de canchas de pádel
+- ✅ Validación de horarios y días
+- ✅ Sistema de notificaciones anti-duplicados
+- ✅ Formateo de mensajes y URLs de reserva
+- ✅ Integración completa del sistema
+
+**Nota**: La prueba completa del sistema (`test:system`) puede enviar un email real si tienes configuradas las variables de entorno de email.
+
 ### Ejecución local
 
 ```bash
@@ -249,12 +277,20 @@ Cada turno incluye:
 ├── app-config.json    # Configuración principal de la aplicación
 ├── .env               # Variables de entorno para información sensible
 ├── .env.example       # Ejemplo de variables de entorno
-└── src/
-    ├── config.ts      # Carga y procesamiento de configuración
-    ├── index.ts       # Lógica principal del checker
-    ├── mailer.ts      # Configuración y envío de emails
-    ├── storage.ts     # Sistema de almacenamiento para evitar duplicados
-    └── utils.ts       # Utilidades para formateo y validación
+├── src/               # Código fuente TypeScript
+│   ├── config.ts      # Carga y procesamiento de configuración
+│   ├── index.ts       # Lógica principal del checker
+│   ├── mailer.ts      # Configuración y envío de emails
+│   ├── storage.ts     # Sistema de almacenamiento para evitar duplicados
+│   └── utils.ts       # Utilidades para formateo y validación
+└── tests/             # Suite de pruebas del sistema
+    ├── test-config.js          # Prueba de configuración
+    ├── test-api.js             # Prueba de conectividad API
+    ├── test-utils.js           # Prueba de utilidades
+    ├── test-storage.js         # Prueba del sistema de storage
+    ├── test-complete-system.js # Prueba de integración completa
+    ├── run-all-tests.js        # Ejecutor de todas las pruebas
+    └── README.md               # Documentación de pruebas
 ```
 
 ## Consideraciones

@@ -1,48 +1,57 @@
-const { config, getClubById } = require('./dist/config.js');
-const { sendEmail } = require('./dist/mailer.js');
-const { SlotStorage } = require('./dist/storage.js');
+const { config, getClubById } = require('../dist/config.js');
+const { sendEmail } = require('../dist/mailer.js');
+const { SlotStorage } = require('../dist/storage.js');
 const {
   capitalizeWords,
   dateFormatter,
   isValidSlot,
   isWithinRunningHours,
   getArgentinaDateString,
-} = require('./dist/utils.js');
+  getConfigurationInfo,
+} = require('../dist/utils.js');
 
-// Función para crear datos de prueba
+// Function to create test slots
 function createMockSlots() {
   const monday = new Date();
-  // Encontrar el próximo lunes
+  // Find next Monday
   const daysUntilMonday = (1 - monday.getDay() + 7) % 7 || 7;
   monday.setDate(monday.getDate() + daysUntilMonday);
   monday.setHours(19, 0, 0, 0); // 7:00 PM
   
-  const slots = [
-    {
-      club: config.clubs.find(c => c.id === 1294), // Head
-      court: 'Cancha 1',
-      time: monday.toISOString(),
-    },
-    {
-      club: config.clubs.find(c => c.id === 1294), // Head
+  const availableClubs = config.clubs;
+  if (availableClubs.length === 0) {
+    console.log('⚠️ No hay clubes habilitados para generar datos de prueba');
+    return [];
+  }
+  
+  const slots = [];
+  
+  // Generate slots for each available club
+  availableClubs.forEach((club, index) => {
+    slots.push({
+      club: club,
+      court: `Cancha ${index + 1}`,
+      time: new Date(monday.getTime() + (index * 60 * 60 * 1000)).toISOString(), // Stagger by 1 hour
+    });
+  });
+  
+  // Add some additional slots
+  if (availableClubs.length > 0) {
+    slots.push({
+      club: availableClubs[0],
       court: 'Cancha 2', 
       time: new Date(monday.getTime() + 90 * 60 * 1000).toISOString(), // +1.5h
-    },
-    {
-      club: config.clubs.find(c => c.id === 796), // Pico
-      court: 'Cancha 1',
-      time: new Date(monday.getTime() + 60 * 60 * 1000).toISOString(), // +1h
-    }
-  ];
+    });
+  }
   
   return slots;
 }
 
-// Función para generar mensajes como en el código real
+// Function to generate messages like in the real code
 function generateClubGroupedMessages(slots) {
   if (slots.length === 0) return { messages: [], clubsWithSlots: [] };
 
-  // Agrupar slots por club
+  // Group slots by club
   const slotsByClub = new Map();
   
   slots.forEach(slot => {
@@ -55,7 +64,7 @@ function generateClubGroupedMessages(slots) {
   const messages = [];
   const clubsWithSlots = [];
 
-  // Generar mensaje para cada club
+  // Generate message for each club
   slotsByClub.forEach((clubSlots, clubId) => {
     const club = getClubById(clubId);
     if (!club) return;
@@ -69,7 +78,7 @@ function generateClubGroupedMessages(slots) {
       turno = capitalizeWords(turno);
       
       const urlDate = getArgentinaDateString(date);
-      const reservationUrl = club.reservationUrlTemplate.replace('{date}', urlDate) + `&sportIds=${config.sports.padel}`;
+      const reservationUrl = club.reservationUrlTemplate.replace('{date}', urlDate) + `&sportIds=${config.api.sports.padel}`;
       
       messages.push(`📅 ${turno} - 🏟️ ${slot.court}\n🔗 Reservar: ${reservationUrl}`);
     });
@@ -90,17 +99,24 @@ async function testCompleteSystem() {
   
   console.log('\n2. 🏢 Clubes configurados:');
   config.clubs.forEach(club => {
-    console.log(`   - ${club.displayName} (ID: ${club.id}) [${club.enabled ? 'HABILITADO' : 'DESHABILITADO'}]`);
+    console.log(`   - ${club.displayName} (ID: ${club.id}) [HABILITADO]`);
   });
   
   console.log('\n3. ⏰ Verificando horarios y filtros:');
-  console.log(`   Horario de ejecución: ${config.runStartHour}:00 - ${config.runEndHour}:00`);
+  console.log(`   Horario de ejecución: ${config.scheduling.runStartHour}:00 - ${config.scheduling.runEndHour}:00 ${config.scheduling.timezone}`);
   console.log(`   ¿Estamos en horario?: ${isWithinRunningHours()}`);
-  console.log(`   Días a verificar: ${config.daysToCheck.join(', ')}`);
-  console.log(`   Horario mínimo: ${config.earliestHour}:${config.earliestMinute.toString().padStart(2, '0')}`);
+  console.log(`   Días a verificar: ${config.scheduling.daysToCheck.join(', ')}`);
+  console.log(`   Horario mínimo: ${config.availability.earliestHour}:${config.availability.earliestMinute.toString().padStart(2, '0')}`);
+  console.log(`   TTL notificaciones: ${config.notifications.ttlHours} horas`);
   
   console.log('\n4. 🎾 Generando datos de prueba:');
   const mockSlots = createMockSlots();
+  
+  if (mockSlots.length === 0) {
+    console.log('   ⚠️ No se pudieron generar datos de prueba (sin clubes habilitados)');
+    return;
+  }
+  
   mockSlots.forEach((slot, i) => {
     const isValid = isValidSlot(slot.time);
     const wasNotified = storage.hasBeenNotified(slot.club.id, slot.court, slot.time);
@@ -110,7 +126,7 @@ async function testCompleteSystem() {
     console.log(`     ¿Ya notificado?: ${wasNotified ? '✅' : '❌'}`);
   });
   
-  // Filtrar slots válidos y no notificados
+  // Filter valid and not notified slots
   const validSlots = mockSlots.filter(slot => isValidSlot(slot.time));
   const newSlots = validSlots.filter(slot => 
     !storage.hasBeenNotified(slot.club.id, slot.court, slot.time)
@@ -124,24 +140,26 @@ async function testCompleteSystem() {
   if (newSlots.length > 0) {
     console.log('\n6. 📧 Generando y enviando email:');
     
-    // Generar mensajes agrupados por club
+    // Generate messages grouped by club
     const result = generateClubGroupedMessages(newSlots);
     const messages = result.messages;
     const clubsWithSlots = result.clubsWithSlots;
     console.log('   Mensajes generados:');
     messages.forEach(msg => console.log(`     ${msg}`));
     
-    // Crear mensaje final con asunto dinámico
+    // Create final message with dynamic subject
     const clubNamesWithSlots = clubsWithSlots.map(c => c.displayName).join(' y ');
-    const finalMessage = `🎾 ¡Hay turnos disponibles!\n${messages.join('\n')}`;
+    const configInfo = getConfigurationInfo();
+    const finalMessage = `🎾 ¡Hay turnos disponibles!\n\n${messages.join('\n')}\n\n\n${configInfo}`;
     
-    console.log(`\n   📧 Enviando email con asunto dinámico: "🎾 Turnos disponibles en ${clubNamesWithSlots}!"`);
-    console.log('   📧 Enviando email...');
+    console.log(`\n   📧 Asunto: "🎾 Turnos disponibles en ${clubNamesWithSlots}!"`);
+    console.log('   📧 Enviando email de prueba...');
+    
     try {
-      await sendEmail(`🎾 Turnos disponibles en ${clubNamesWithSlots}!`, finalMessage);
+      await sendEmail(`🎾 [TEST] Turnos disponibles en ${clubNamesWithSlots}!`, finalMessage);
       console.log('   ✅ Email enviado exitosamente');
       
-      // Marcar como notificados
+      // Mark as notified
       console.log('\n7. 💾 Marcando turnos como notificados:');
       newSlots.forEach(slot => {
         storage.markAsNotified(slot.club.id, slot.court, slot.time);
@@ -150,6 +168,7 @@ async function testCompleteSystem() {
       
     } catch (error) {
       console.log(`   ❌ Error enviando email: ${error.message}`);
+      console.log('   💡 Tip: Verifica las variables de entorno EMAIL_* en tu .env');
     }
   } else {
     console.log('\n6. ℹ️  Sin turnos nuevos para notificar');
@@ -158,5 +177,5 @@ async function testCompleteSystem() {
   console.log('\n🎉 === PRUEBA COMPLETA FINALIZADA ===');
 }
 
-// Ejecutar la prueba
+// Execute the test
 testCompleteSystem().catch(console.error);

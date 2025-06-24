@@ -6,7 +6,13 @@
   "scripts": {
     "build": "tsc",
     "run": "node dist/index.js",
-    "start": "npm run build && npm run run"
+    "start": "npm run build && npm run run",
+    "test": "node tests/run-all-tests.js",
+    "test:config": "npm run build && node tests/test-config.js",
+    "test:api": "npm run build && node tests/test-api.js",
+    "test:utils": "npm run build && node tests/test-utils.js",
+    "test:storage": "npm run build && node tests/test-storage.js",
+    "test:system": "npm run build && node tests/test-complete-system.js"
   },
   "keywords": [],
   "author": "",
