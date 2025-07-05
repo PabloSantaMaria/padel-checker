@@ -23,8 +23,10 @@ export interface AppConfig {
     timezone?: string;
   };
   availability: {
-    earliestHour: number;
-    earliestMinute: number;
+    startHour: number;
+    startMinute: number;
+    endHour: number;
+    endMinute: number;
   };
   notifications: {
     ttlHours: number;

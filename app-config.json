@@ -7,8 +7,10 @@
     "timezone": "America/Argentina/Buenos_Aires"
   },
   "availability": {
-    "earliestHour": 17,
-    "earliestMinute": 30
+    "startHour": 17,
+    "startMinute": 30,
+    "endHour": 21,
+    "endMinute": 0
   },
   "notifications": {
     "ttlHours": 24

@@ -106,7 +106,7 @@ async function testCompleteSystem() {
   console.log(`   Horario de ejecución: ${config.scheduling.runStartHour}:00 - ${config.scheduling.runEndHour}:00 ${config.scheduling.timezone}`);
   console.log(`   ¿Estamos en horario?: ${isWithinRunningHours()}`);
   console.log(`   Días a verificar: ${config.scheduling.daysToCheck.join(', ')}`);
-  console.log(`   Horario mínimo: ${config.availability.earliestHour}:${config.availability.earliestMinute.toString().padStart(2, '0')}`);
+  console.log(`   Horario de turnos: ${config.availability.startHour}:${config.availability.startMinute.toString().padStart(2, '0')} a ${config.availability.endHour}:${config.availability.endMinute.toString().padStart(2, '0')}`);
   console.log(`   TTL notificaciones: ${config.notifications.ttlHours} horas`);
   
   console.log('\n4. 🎾 Generando datos de prueba:');
