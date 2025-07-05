@@ -35,6 +35,13 @@
       "displayName": "Pico Deportes",
       "enabled": true,
       "reservationUrlTemplate": "https://atcsports.io/venues/pico-deportes-tandil?dia={date}"
+    },
+    {
+      "id": 1040,
+      "name": "nexus-sports",
+      "displayName": "Nexus Sports",
+      "enabled": true,
+      "reservationUrlTemplate": "https://atcsports.io/venues/nexus-sports?dia={date}"
     }
   ]
 }
