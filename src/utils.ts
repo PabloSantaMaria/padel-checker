@@ -22,6 +22,22 @@ export function capitalizeWords(str: string): string {
   });
 }
 
+function isTimeInRange(hour: number, minute: number, startHour: number, startMinute: number, endHour: number, endMinute: number): boolean {
+  // Convertir todo a minutos desde medianoche para comparación fácil
+  const currentMinutes = hour * 60 + minute;
+  const startMinutes = startHour * 60 + startMinute;
+  const endMinutes = endHour * 60 + endMinute;
+  
+  // Manejar el caso donde el rango cruza medianoche (ej: 22:30 - 02:00)
+  if (endMinutes <= startMinutes) {
+    // El rango cruza medianoche
+    return currentMinutes >= startMinutes || currentMinutes < endMinutes;
+  } else {
+    // Rango normal (no cruza medianoche)
+    return currentMinutes >= startMinutes && currentMinutes < endMinutes;
+  }
+}
+
 export function isValidSlot(dateStr: string): boolean {
   const date = new Date(dateStr);
 
@@ -40,8 +56,7 @@ export function isValidSlot(dateStr: string): boolean {
 
   return (
     config.scheduling.daysToCheck.includes(day) &&
-    (hour > config.availability.earliestHour ||
-      (hour === config.availability.earliestHour && minute >= config.availability.earliestMinute))
+    isTimeInRange(hour, minute, config.availability.startHour, config.availability.startMinute, config.availability.endHour, config.availability.endMinute)
   );
 }
 
@@ -113,7 +128,7 @@ export function getConfigurationInfo(): string {
   lines.push(`⏰ Intervalo de chequeo: ${config.scheduling.checkIntervalMinutes} minutos`);
   lines.push(`📅 Días a revisar: ${config.scheduling.daysToCheck.join(', ')}`);
   lines.push(`🕒 Horario de ejecución (hs): ${config.scheduling.runStartHour}:00 a ${config.scheduling.runEndHour}:00`);
-  lines.push(`🔎 Turnos a partir de (hs): ${config.availability.earliestHour}:${config.availability.earliestMinute.toString().padStart(2, '0')}`);
+  lines.push(`🔎 Turnos en rango (hs): ${config.availability.startHour}:${config.availability.startMinute.toString().padStart(2, '0')} a ${config.availability.endHour}:${config.availability.endMinute.toString().padStart(2, '0')}`);
   lines.push(`🏟️ Clubs habilitados:`);
   config.clubs.forEach(club => {
     lines.push(`   - ${club.displayName} (ID: ${club.id})`);

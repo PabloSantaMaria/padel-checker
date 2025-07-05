@@ -54,6 +54,6 @@ config.scheduling.daysToCheck.forEach(day => {
 });
 
 console.log('\n5. ⚙️ Configuración de horarios mínimos:');
-console.log(`   Horario más temprano: ${config.availability.earliestHour}:${config.availability.earliestMinute.toString().padStart(2, '0')}`);
+console.log(`   Horario de turnos: ${config.availability.startHour}:${config.availability.startMinute.toString().padStart(2, '0')} a ${config.availability.endHour}:${config.availability.endMinute.toString().padStart(2, '0')}`);
 
 console.log('\n✅ Test de utilidades completado!');
