@@ -68,8 +68,15 @@ export function isWithinRunningHours(): boolean {
   // Convert to configured timezone
   const localTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }));
   const currentHour = localTime.getHours();
+  const currentDay = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][localTime.getDay()];
   
-  console.log(`Checking running hours in timezone ${timezone}: current hour is ${currentHour}`);
+  console.log(`Checking running hours in timezone ${timezone}: current hour is ${currentHour}, day is ${currentDay}`);
+
+  // First check if today is a valid day to run
+  if (!config.scheduling.daysToCheck.includes(currentDay)) {
+    console.log(`No se ejecuta hoy (${currentDay}). Días configurados: ${config.scheduling.daysToCheck.join(', ')}`);
+    return false;
+  }
 
   // Manejar el caso donde el horario cruza medianoche (ej: 22:00 - 06:00)
   if (config.scheduling.runEndHour <= config.scheduling.runStartHour) {

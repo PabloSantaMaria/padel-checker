@@ -2,7 +2,7 @@ name: Check Court Availability
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # cada 30 minutos
+    - cron: '*/30 * * * 1-5' # cada 30 minutos, lunes a viernes (1-5)
   workflow_dispatch: # permite ejecutar manualmente desde la UI
   push:
     branches: [ main ] # También ejecutar en push para test

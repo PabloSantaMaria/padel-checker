@@ -1,6 +1,6 @@
 {
   "scheduling": {
-    "checkIntervalMinutes": 30,
+    "checkIntervalMinutes": 60,
     "daysToCheck": ["MO", "TU", "WE", "TH", "FR"],
     "runStartHour": 7,
     "runEndHour": 23,
